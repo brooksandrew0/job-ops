@@ -50,3 +50,7 @@ remain in the owner's private `personal-infra` repository. This fork contains on
 Known residuals from the initial security review: production `stream-json` 1.9.1 has a moderate filter-path DoS advisory;
 Crawlee uses the unaffected StreamArray API. Development-only older esbuild versions match a development-server advisory.
 These must be reassessed on future updates. This recipe is not a claim that every OS package or bundled tool is vulnerability-free.
+
+To verify registry visibility and resolve an existing release digest, dispatch the Maintenance build workflow with
+operation `verify-image` and its image tag. This read-only job uses package-read permission and asserts private visibility;
+it does not build, publish or deploy. It avoids requiring package access on the deployment host.
