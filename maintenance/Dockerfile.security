@@ -1,0 +1,24 @@
+FROM ghcr.io/dakheera47/job-ops@sha256:42831cacd2021d65f808c9f0363e53d081fb55cb2626da7c9d233616618276c9 AS upstream
+FROM upstream AS build
+WORKDIR /app
+ENV NODE_ENV=development
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential pkg-config && rm -rf /var/lib/apt/lists/*
+RUN npm install -g npm@12.0.2 --no-audit --no-fund
+COPY source/ /app/
+RUN npm ci --allow-remote=all --include=dev --no-audit --no-fund
+FROM build AS production-deps
+RUN npm --workspace orchestrator run build:client
+RUN npm prune --allow-remote=all --omit=dev --ignore-scripts --no-audit --no-fund
+FROM ghcr.io/dakheera47/job-ops@sha256:42831cacd2021d65f808c9f0363e53d081fb55cb2626da7c9d233616618276c9 AS production
+WORKDIR /app
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+RUN pip3 install --break-system-packages --no-cache-dir jwcrypto==1.6.1 cryptography==50.0.1
+RUN rm -rf /app
+COPY --from=production-deps /app/ /app/
+COPY --from=upstream /app/orchestrator/dist/docs/ /app/orchestrator/dist/docs/
+ARG MAINTENANCE_REVISION
+LABEL org.opencontainers.image.version="v0.13.1-security.20260921" \
+      org.opencontainers.image.source="https://github.com/brooksandrew0/job-ops" \
+      org.opencontainers.image.revision="${MAINTENANCE_REVISION}"
+ENV NODE_ENV=production
+WORKDIR /app/orchestrator

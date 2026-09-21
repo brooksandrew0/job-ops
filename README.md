@@ -1,3 +1,5 @@
+> Maintenance fork: use [maintenance/README.md](maintenance/README.md) for the tested build and release process. Deployment is managed separately.
+
 <div align="center">
 
 # Job<span>Ops</span>

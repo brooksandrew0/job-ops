@@ -188,7 +188,7 @@ export function DesignResumePdfPreview({
       .then((nextDocument) => {
         if (!nextDocument) return;
         if (requestSequence.current !== requestId) {
-          void nextDocument.destroy();
+          void nextDocument.loadingTask.destroy();
           return;
         }
 
@@ -196,7 +196,7 @@ export function DesignResumePdfPreview({
         latestPdfDocumentRef.current = nextDocument;
         setPdfDocument(nextDocument);
         setPageCount(nextDocument.numPages);
-        void previousDocument?.destroy();
+        void previousDocument?.loadingTask.destroy();
 
         trackProductEvent("resume_studio_pdf_preview_completed", {
           renderer: pdfRenderer,
@@ -235,7 +235,7 @@ export function DesignResumePdfPreview({
 
   useEffect(() => {
     return () => {
-      void latestPdfDocumentRef.current?.destroy();
+      void latestPdfDocumentRef.current?.loadingTask.destroy();
     };
   }, []);
 

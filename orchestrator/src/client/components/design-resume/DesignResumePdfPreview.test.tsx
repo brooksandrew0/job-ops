@@ -161,12 +161,13 @@ describe("DesignResumePdfPreview", () => {
       } as unknown as Blob;
     });
 
+    const destroyLoadingTask = vi.fn();
     vi.mocked(pdfjs.getDocument).mockImplementation(
       () =>
         ({
           promise: Promise.resolve({
             numPages: 2,
-            destroy: vi.fn(),
+            loadingTask: { destroy: destroyLoadingTask },
             getPage: async () => ({
               getViewport: ({ scale }: { scale: number }) => ({
                 width: 800 * scale,
@@ -180,7 +181,7 @@ describe("DesignResumePdfPreview", () => {
         }) as unknown as PDFDocumentLoadingTask,
     );
 
-    const { rerender } = render(
+    const { rerender, unmount } = render(
       <DesignResumePdfPreview
         draft={baseDraft}
         pdfRenderer="typst"
@@ -232,6 +233,9 @@ describe("DesignResumePdfPreview", () => {
 
     await waitFor(() => {
       expect(viewer.scrollTop).toBe(2000);
+      expect(destroyLoadingTask).toHaveBeenCalledTimes(1);
     });
+    unmount();
+    expect(destroyLoadingTask).toHaveBeenCalledTimes(2);
   });
 });

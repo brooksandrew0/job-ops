@@ -1,0 +1,9 @@
+*
+!Dockerfile.security
+!source/
+!source/**
+source/.git
+source/.codegraph
+source/**/node_modules
+source/data
+source/.env*
