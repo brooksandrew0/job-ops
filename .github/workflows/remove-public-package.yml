@@ -1,0 +1,20 @@
+name: Remove mistaken public JobOps package
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+jobs:
+  remove:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Remove only the accidentally public package
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          visibility=$(gh api users/brooksandrew0/packages/container/job-ops --jq .visibility)
+          test "$visibility" = public
+          gh api --method DELETE users/brooksandrew0/packages/container/job-ops
+          echo 'Removed the accidentally public job-ops package; the private package is separate.' >> "$GITHUB_STEP_SUMMARY"
